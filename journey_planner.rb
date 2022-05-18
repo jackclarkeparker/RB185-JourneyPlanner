@@ -119,7 +119,7 @@ end
 
 # Create new journey
 post "/create_journey" do
-  @journey_name = params[:journey_name]
+  @journey_name = params[:journey_name].strip
   
   error = error_for_journey_name(@journey_name)
   if error
@@ -134,7 +134,11 @@ end
 
 # View page for a journey
 get "/journeys/:journey_id" do
-  @journey = 
+  journey_id = params[:journey_id]
+  @journey = @storage.find_journey(journey_id)
+  @countries = []
+
+  erb :journey
 end
 
 # View page for adding a country

@@ -1,14 +1,14 @@
-<h1><%= @journey.name %></h1>
+<h1><%= @journey[:name] %></h1>
 
-<% if @journey.countries.empty? %>
+<% if @countries.empty? %>
   <p>It looks like you don't have any countries planned for a visit on this journey yet.</p>
-  <p>Would you like to <a href="/journeys/<%= @journey.id %>/add_country">add your starting country?</a>
+  <p>Would you like to <a href="/journeys/<%= @journey[:id] %>/add_country">add your starting country?</a>
   </p>
 <% else %>
   <h2>Countries</h2>
   <ul>
     <% @journey.countries.each do |country| %>
-      <li><a href="/journeys/<%= @journey.id %>/countries/<%= country.id %>"><%= country.name %></a></li>
+      <li><a href="/journeys/<%= @journey.id %>/countries/<%= country.id %>"><%= country[:name] %></a></li>
     <% end %>
   </ul> 
   <p><a href="/journeys/<%= @journey.id %>/add_country">Add another country?</a></p>
