@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="/stylesheets/travel_planner.css">
+</head>
+<body>
+  <!-- Will we ever have an error and success message at the same time? -->
+  <% if @storage.message[:success] %>
+    <p>
+      <%= @storage.message.delete(:success) %>
+    </p>
+  <% end %>
+  <% if @storage.message[:error] %>
+    <p>
+      <%= @storage.message.delete(:error) %>
+    </p>
+  <% end %>
+  <%== yield %>
+</body>
+</html>

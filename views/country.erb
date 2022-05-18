@@ -1,0 +1,9 @@
+<h1><%= @country.name %></h1>
+
+<h2>Locations</h2>
+<ul>
+  <% @country.locations.each do |location| %>
+    <li><a href="/journeys/<%= @journey.id %>/countries/<%= @country.id %>/locations/<%= location.id %>"><%= location.name %></a></li>
+  <% end %>
+</ul>
+<p><a href="/journeys/<%= @journey.id %>/countries/<%= @country.id %>/add_location">Add another location?</a></p>
