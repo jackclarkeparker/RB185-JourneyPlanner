@@ -7,9 +7,9 @@
 <% else %>
   <h2>Countries</h2>
   <ul>
-    <% @journey.countries.each do |country| %>
-      <li><a href="/journeys/<%= @journey.id %>/countries/<%= country.id %>"><%= country[:name] %></a></li>
+    <% @countries.each do |country| %>
+      <li><a href="/journeys/<%= @journey[:id] %>/countries/<%= country[:id] %>"><%= country[:name] %></a></li>
     <% end %>
   </ul> 
-  <p><a href="/journeys/<%= @journey.id %>/add_country">Add another country?</a></p>
+  <p><a href="/journeys/<%= @journey[:id] %>/add_country">Add another country?</a></p>
 <% end %>

@@ -37,28 +37,43 @@ class DatabasePersistence
     { id: tuple["id"].to_i, name: tuple["name"] }
   end
 
+  # countries_for_journey_view
+  def countries_visiting_on_journey(journey_id)
+    sql = <<~SQL
+    SELECT countries.* FROM countries
+      INNER JOIN countries_journeys ON countries_journeys.country_id = countries.id
+      WHERE countries_journeys.journey_id = $1;
+    SQL
+    result = query(sql, journey_id)
 
-  def all_countries_for_journey(id)
+    result.map do |tuple|
+      { id: tuple["id"].to_i, name: tuple["name"] }
+    end
+  end
+
+  # locations_for_country_view
+  def locations_of_country_visiting_on_journey(country_id, journey_id)
 
   end
 
-  def find_country_for_journey(journey_id, country_id)
 
-  end
+  # def find_country_for_journey(journey_id, country_id)
+
+  # end
 
   # To ensure we don't add the same location twice
-  def all_locations
+  # def all_locations
 
-  end
+  # end
 
   # To ensure we don't add the same country twice
-  def all_countries
+  # def all_countries
 
-  end
+  # end
 
-  def all_locations_for_journey(id)
+  # def all_locations_for_journey(id)
 
-  end
+  # end
 
   def create_journey(name)
     sql = "INSERT INTO journeys(name) VALUES ($1)"
@@ -136,7 +151,7 @@ end
 get "/journeys/:journey_id" do
   journey_id = params[:journey_id]
   @journey = @storage.find_journey(journey_id)
-  @countries = []
+  @countries = @storage.countries_visiting_on_journey(journey_id)
 
   erb :journey
 end
