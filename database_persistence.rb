@@ -16,21 +16,26 @@ class DatabasePersistence
     @message = {}
   end
 
-  def all_journeys
-    sql = "SELECT * FROM journeys"
-    result = query(sql)
-
-    result.map do |journey|
-      { id: journey["id"].to_i, name: journey["name"] }
-    end
-  end
-
   def find_journey(id)
     sql = "SELECT * FROM journeys WHERE id = $1"
     result = query(sql, id)
 
     tuple = result.first
     { id: tuple["id"].to_i, name: tuple["name"] }
+  end
+
+  def all_journeys
+    sql = "SELECT * FROM journeys"
+    result = query(sql)
+
+    result.map do |tuple|
+      { id: tuple["id"].to_i, name: tuple["name"] }
+    end
+  end
+
+  def create_journey(name)
+    sql = "INSERT INTO journeys(name) VALUES ($1)"
+    query(sql, name)
   end
 
   # countries_for_journey_view
@@ -47,10 +52,22 @@ class DatabasePersistence
     end
   end
 
-  # locations_for_country_view
-  def locations_of_country_visiting_on_journey(country_id, journey_id)
+  def add_country_to_journey(journey_id, country_name)
+    process_new_country_input(country_name)
+    country = find_country_by_name(country_name)
 
+    sql = <<~SQL
+    INSERT INTO countries_journeys(journey_id, country_id)
+      VALUES ($1, $2)
+    SQL
+
+    query(sql, journey_id, country[:id])
   end
+
+  # locations_for_country_view
+  # def locations_of_country_visiting_on_journey(country_id, journey_id)
+
+  # end
 
 
   # def find_country_for_journey(journey_id, country_id)
@@ -71,13 +88,28 @@ class DatabasePersistence
 
   # end
 
-  def create_journey(name)
-    sql = "INSERT INTO journeys(name) VALUES ($1)"
-    query(sql, name)
+  def query(sql, *params)
+    puts "#{sql} : #{params}"
+    @db.exec_params(sql, params)
   end
 
-  def query(sql, *params)
-    puts sql
-    @db.exec_params(sql, params)
+  private
+
+  def process_new_country_input(name)
+    country = find_country_by_name(name)
+    insert_country(name) unless country
+  end
+
+  def find_country_by_name(name)
+    sql = "SELECT * FROM countries WHERE name = $1"
+    result = query(sql, name)
+    tuple = result.first
+
+    { id: tuple["id"].to_i, name: tuple["name"] } if tuple
+  end
+
+  def insert_country(name)
+    sql = "INSERT INTO countries(name) VALUES ($1)"
+    query(sql, name)
   end
 end

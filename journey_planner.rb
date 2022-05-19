@@ -11,10 +11,15 @@ end
 
 configure(:development) do
   require "sinatra/reloader"
+  also_reload "database_persistence.rb"
 end
 
 before do
   @storage = DatabasePersistence.new
+end
+
+def parent_route
+  request.path[/\A.*(?=\/)/]
 end
 
 def error_for_journey_name(name)
@@ -23,8 +28,8 @@ def error_for_journey_name(name)
   elsif journey_name_in_use?(name)
     "That name is already in use, please choose another."
   elsif invalid_name_chars?(name)
-    "Journey name can be constructed with alphanumerics, whitespace, "\
-    "hypens, and underscores only."
+    "Journey names can be constructed with alphabetical characters, "\
+    "whitespace, and hyphens only"
   end
 end
 
@@ -35,7 +40,16 @@ def journey_name_in_use?(name)
 end
 
 def invalid_name_chars?(name)
-  !name.match(/\A[a-z0-9\ _-]+\z/i)
+  !name.match(/\A[a-z\ -]+\z/i)
+end
+
+def error_for_country_name(name)
+  if name.empty?
+    "A name for the country must be supplied."
+  elsif invalid_name_chars?(name)
+    "Country names can be constructed with alphabetical characters, "\
+    "whitespace, and hyphens only"
+  end
 end
 
 # It seems like we'll need similar code for validating country / location names
@@ -79,14 +93,28 @@ end
 get "/journeys/:journey_id/add_country" do
   journey_id = params[:journey_id]
   @journey = @storage.find_journey(journey_id)
+  # Retrieving countries here just to see if it's empty to display alternate
+  # prompt in add_country view. Maybe a good instance to add this functionality
+  # to journey hash objects or the Journey class
   @countries = @storage.countries_visiting_on_journey(journey_id)
-  
+
   erb :add_country
 end
 
 # Add a country for a journey
 post "/journeys/:journey_id/add_country" do
-  # country_name
+  @country_name = params[:country_name]
+
+  error = error_for_country_name(@country_name)
+  if error
+    status 422
+    @storage.set_error_message(error)
+    erb :add_country
+  else
+    journey_id = params[:journey_id]
+    @storage.add_country_to_journey(journey_id, @country_name)
+    redirect parent_route
+  end
 end
 
 # View page for a country in a journey
