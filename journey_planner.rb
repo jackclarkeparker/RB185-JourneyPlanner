@@ -77,7 +77,11 @@ end
 
 # View page for adding a country
 get "/journeys/:journey_id/add_country" do
-  @journey
+  journey_id = params[:journey_id]
+  @journey = @storage.find_journey(journey_id)
+  @countries = @storage.countries_visiting_on_journey(journey_id)
+  
+  erb :add_country
 end
 
 # Add a country for a journey

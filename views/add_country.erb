@@ -1,35 +1,15 @@
 <h2>Adding a Country...</h2>
-<form action='/journeys/<%= @journey.id %>/add_country' method="post">
-  <% if @journey.countries.empty? %>
+<form action='/journeys/<%= @journey[:id] %>/add_country' method="post">
+  <% if @countries.empty? %>
     <div>    
-      <label for="country">Which country will you set out from?
-        <input name="country" value="<%= @country %>">
-      </label>
-    </div>
-    <div>
-      <label for="location">From which location will you set out?
-        <input name="location" value="<%= @location %>">
-      </label>
-    </div>
-    <div>
-      <label for="arrival_date">What date will you set out? (dd-mm-yyyy)
-        <input name="arrival_date" value="<%= @arrival_date %>">
+      <label for="country_name">Which country will you set out from?
+        <input name="country_name" value="<%= @country_name %>">
       </label>
     </div>
   <% else %>
     <div>    
-      <label for="country">Which country would you like to add to your journey?
-        <input name="country" value="<%= @country %>">
-      </label>
-    </div>
-    <div>
-      <label for="location">Which location will you arrive in?
-        <input name="location" value="<%= @location %>">
-      </label>
-    </div>
-    <div>
-      <label for="arrival_date">What date will you arrive? (dd-mm-yyyy)
-        <input name="arrival_date" value="<%= @arrival_date %>">
+      <label for="country_name">Which country would you like to add to your journey?
+        <input name="country_name" value="<%= @country_name %>">
       </label>
     </div>
   <% end %>
