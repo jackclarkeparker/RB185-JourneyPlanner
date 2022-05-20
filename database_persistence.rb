@@ -38,17 +38,18 @@ class DatabasePersistence
     query(sql, name)
   end
 
-  # countries_for_journey_view
-  def countries_visiting_on_journey(journey_id)
+  def country_visits_on_journey(id)
     sql = <<~SQL
-    SELECT countries.* FROM countries
-      INNER JOIN countries_journeys ON countries_journeys.country_id = countries.id
-      WHERE countries_journeys.journey_id = $1;
+    SELECT country_visits.id, countries.name
+      FROM country_visits
+     INNER JOIN countries
+        ON country_visits.country_id = countries.id
+     WHERE journey_id = $1;
     SQL
-    result = query(sql, journey_id)
+    result = query(sql, id)
 
     result.map do |tuple|
-      { id: tuple["id"].to_i, name: tuple["name"] }
+      { id: tuple["id"].to_i, country_name: tuple["name"] }
     end
   end
 
@@ -57,36 +58,41 @@ class DatabasePersistence
     country = find_country_by_name(country_name)
 
     sql = <<~SQL
-    INSERT INTO countries_journeys(journey_id, country_id)
+    INSERT INTO country_visits(journey_id, country_id)
       VALUES ($1, $2)
     SQL
 
     query(sql, journey_id, country[:id])
   end
 
-  # locations_for_country_view
-  # def locations_of_country_visiting_on_journey(country_id, journey_id)
+  def find_country_visit(id)
+    sql = <<~SQL
+    SELECT country_visits.id, countries.name
+      FROM country_visits
+     INNER JOIN countries
+        ON country_visits.country_id = countries.id
+     WHERE country_visits.id = $1;
+    SQL
+    result = query(sql, id)
 
-  # end
+    tuple = result.first
+    { id: tuple["id"].to_i, country_name: tuple["name"] }
+  end
 
+  def location_visits_on_country_visit(country_visit_id)
+    sql = <<~SQL
+    SELECT locations.*
+      FROM locations
+     INNER JOIN location_visits
+        ON location_visits.location_id = locations.id
+     WHERE country_visit_id = $1;
+    SQL
+    result = query(sql, country_visit_id)
 
-  # def find_country_for_journey(journey_id, country_id)
-
-  # end
-
-  # To ensure we don't add the same location twice
-  # def all_locations
-
-  # end
-
-  # To ensure we don't add the same country twice
-  # def all_countries
-
-  # end
-
-  # def all_locations_for_journey(id)
-
-  # end
+    result.map do |tuple|
+      { id: tuple["id"].to_i, location_name: tuple["name"] }
+    end
+  end
 
   def query(sql, *params)
     puts "#{sql} : #{params}"
