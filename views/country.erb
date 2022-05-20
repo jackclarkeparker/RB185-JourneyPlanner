@@ -1,9 +1,11 @@
-<h1><%= @country.name %></h1>
+<h1><%= @country_visit[:country_name] %></h1>
 
 <h2>Locations</h2>
 <ul>
-  <% @country.locations.each do |location| %>
-    <li><a href="/journeys/<%= @journey.id %>/countries/<%= @country.id %>/locations/<%= location.id %>"><%= location.name %></a></li>
+  <% @location_visits.each do |location_visit| %>
+    <li><a href="/journeys/<%= @journey[:id] %>/countries/<%= @country_visit[:id] %>/locations/<%= location_visit[:id] %>"><%= location_visit[:location_name] %></a></li>
   <% end %>
 </ul>
-<p><a href="/journeys/<%= @journey.id %>/countries/<%= @country.id %>/add_location">Add another location?</a></p>
+<p>
+  <a href="/journeys/<%= @journey[:id] %>/countries/<%= @country_visit[:id] %>/add_location">Add another location?</a>
+</p>

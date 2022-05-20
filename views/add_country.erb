@@ -1,6 +1,6 @@
 <h2>Adding a Country...</h2>
 <form action='/journeys/<%= @journey[:id] %>/add_country' method="post">
-  <% if @countries.empty? %>
+  <% if @country_visits.empty? %>
     <div>    
       <label for="country_name">Which country will you set out from?
         <input name="country_name" value="<%= @country_name %>">
