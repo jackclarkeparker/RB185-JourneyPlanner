@@ -128,10 +128,13 @@ end
 
 # View page for adding a location to a journey
 get "/journeys/:journey_id/countries/:country_id/add_location" do
+  @journey = @storage.find_journey_by_id(params[:journey_id])
+  @country_visit = @storage.find_country_visit(params[:country_id])
 
+  erb :add_location
 end
 
 # Add a location for a country
 post "/journeys/:journey_id/countries/:country_id/add_location" do
-
+  # @location_name = 
 end
