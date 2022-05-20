@@ -53,7 +53,7 @@ class DatabasePersistence
     end
   end
 
-  def add_country_to_journey(journey_id, country_name)
+  def add_country_visit_to_journey(journey_id, country_name)
     process_new_country_input(country_name)
     country = find_country_by_name(country_name)
 
@@ -92,6 +92,10 @@ class DatabasePersistence
     result.map do |tuple|
       { id: tuple["id"].to_i, location_name: tuple["name"] }
     end
+  end
+
+  def add_location_visit_to_country_visit(country_visit_id, location_name)
+    
   end
 
   def query(sql, *params)

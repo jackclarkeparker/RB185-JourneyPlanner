@@ -52,6 +52,16 @@ def error_for_country_name(name)
   end
 end
 
+# Duplication, sort this out later
+def error_for_location_name(name)
+  if name.empty?
+    "A name for the location must be supplied."
+  elsif invalid_name_chars?(name)
+    "Location names can be constructed with alphabetical characters, "\
+    "whitespace, and hyphens only"
+  end
+end
+
 # It seems like we'll need similar code for validating country / location names
 
 # View all journeys (homepage)
@@ -83,7 +93,7 @@ end
 # View page for a journey
 get "/journeys/:journey_id" do
   journey_id = params[:journey_id]
-  @journey = @storage.find_journey_by_id(journey_id)
+  @journey = @storage.find_journey(journey_id)
   @country_visits = @storage.country_visits_on_journey(journey_id)
 
   erb :journey
@@ -92,7 +102,7 @@ end
 # View page for adding a country
 get "/journeys/:journey_id/add_country" do
   journey_id = params[:journey_id]
-  @journey = @storage.find_journey_by_id(journey_id)
+  @journey = @storage.find_journey(journey_id)
   # Retrieving countries here just to see if it's empty to display alternate
   # prompt in add_country view. Maybe a good instance to add this functionality
   # to journey hash objects or the Journey class
@@ -109,17 +119,20 @@ post "/journeys/:journey_id/add_country" do
   if error
     status 422
     @storage.set_error_message(error)
+     # Had to add @journey so that the page renders without issue when there's
+     # an error with user input.
+    @journey = find_journey(params[:journey_id])
     erb :add_country
   else
     journey_id = params[:journey_id]
-    @storage.add_country_to_journey(journey_id, @country_name)
+    @storage.add_country_visit_to_journey(journey_id, @country_name)
     redirect parent_route
   end
 end
 
 # View page for a country in a journey
 get "/journeys/:journey_id/countries/:country_id" do # Change country_id to c_visit_id?
-  @journey = @storage.find_journey_by_id(params[:journey_id])
+  @journey = @storage.find_journey(params[:journey_id])
   @country_visit = @storage.find_country_visit(params[:country_id])
   @location_visits = @storage.location_visits_on_country_visit(@country_visit[:id])
 
@@ -128,13 +141,28 @@ end
 
 # View page for adding a location to a journey
 get "/journeys/:journey_id/countries/:country_id/add_location" do
-  @journey = @storage.find_journey_by_id(params[:journey_id])
+  @journey = @storage.find_journey(params[:journey_id])
   @country_visit = @storage.find_country_visit(params[:country_id])
+
+  binding.pry
 
   erb :add_location
 end
 
 # Add a location for a country
 post "/journeys/:journey_id/countries/:country_id/add_location" do
-  # @location_name = 
+  @location_name = params[:location_name]
+
+  error = error_for_location_name(@location_name)
+  if error
+    status 422
+    @storage.set_error_message(error)
+    @journey = @storage.find_journey(params[:journey_id])
+    @country_visit = @storage.find_country_visit(params[:country_id])
+    erb :add_location
+  else
+    country_visit_id = params[:country_id]
+    @storage.add_location_visit_to_country_visit(country_visit_id, @location_name)
+    redirect parent_route
+  end
 end
