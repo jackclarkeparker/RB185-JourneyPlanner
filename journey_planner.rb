@@ -83,8 +83,8 @@ end
 # View page for a journey
 get "/journeys/:journey_id" do
   journey_id = params[:journey_id]
-  @journey = @storage.find_journey(journey_id)
-  @countries = @storage.countries_visiting_on_journey(journey_id)
+  @journey = @storage.find_journey_by_id(journey_id)
+  @country_visits = @storage.country_visits_on_journey(journey_id)
 
   erb :journey
 end
@@ -92,11 +92,11 @@ end
 # View page for adding a country
 get "/journeys/:journey_id/add_country" do
   journey_id = params[:journey_id]
-  @journey = @storage.find_journey(journey_id)
+  @journey = @storage.find_journey_by_id(journey_id)
   # Retrieving countries here just to see if it's empty to display alternate
   # prompt in add_country view. Maybe a good instance to add this functionality
   # to journey hash objects or the Journey class
-  @countries = @storage.countries_visiting_on_journey(journey_id)
+  @country_visits = @storage.country_visits_on_journey(journey_id)
 
   erb :add_country
 end
@@ -118,8 +118,12 @@ post "/journeys/:journey_id/add_country" do
 end
 
 # View page for a country in a journey
-get "/journeys/:journey_id/countries/:country_id" do
+get "/journeys/:journey_id/countries/:country_id" do # Change country_id to c_visit_id?
+  @journey = @storage.find_journey_by_id(params[:journey_id])
+  @country_visit = @storage.find_country_visit(params[:country_id])
+  @location_visits = @storage.location_visits_on_country_visit(@country_visit[:id])
 
+  erb :country
 end
 
 # View page for adding a location to a journey
