@@ -14,14 +14,14 @@ CREATE TABLE locations(
     country_id integer NOT NULL REFERENCES countries(id) ON DELETE CASCADE
 );
 
-CREATE TABLE countries_journeys(
+CREATE TABLE country_visits(
     id serial PRIMARY KEY,
     country_id integer NOT NULL REFERENCES countries(id),
     journey_id integer NOT NULL REFERENCES journeys(id) ON DELETE CASCADE
 );
 
-CREATE TABLE locations_journeys(
+CREATE TABLE location_visits(
     id serial PRIMARY KEY,
     location_id integer NOT NULL REFERENCES locations(id),
-    journey_id integer NOT NULL REFERENCES journeys(id) ON DELETE CASCADE
+    country_visit_id integer NOT NULL REFERENCES country_visits(id) ON DELETE CASCADE
 );
