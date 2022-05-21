@@ -40,7 +40,8 @@ class DatabasePersistence
 
   def country_visits_on_journey(id)
     sql = <<~SQL
-    SELECT country_visits.id, countries.name
+    SELECT country_visits.id, countries.name,
+           countries.id AS country_id
       FROM country_visits
      INNER JOIN countries
         ON country_visits.country_id = countries.id
@@ -49,7 +50,9 @@ class DatabasePersistence
     result = query(sql, id)
 
     result.map do |tuple|
-      { id: tuple["id"].to_i, country_name: tuple["name"] }
+      { id: tuple["id"].to_i,
+        country_name: tuple["name"],
+        country_id: tuple["country_id"] }
     end
   end
 
@@ -67,7 +70,8 @@ class DatabasePersistence
 
   def find_country_visit(id)
     sql = <<~SQL
-    SELECT country_visits.id, countries.name
+    SELECT country_visits.id, countries.name,
+           countries.id AS country_id
       FROM country_visits
      INNER JOIN countries
         ON country_visits.country_id = countries.id
@@ -76,14 +80,16 @@ class DatabasePersistence
     result = query(sql, id)
 
     tuple = result.first
-    { id: tuple["id"].to_i, country_name: tuple["name"] }
+    { id: tuple["id"].to_i,
+      country_name: tuple["name"],
+      country_id: tuple["country_id"] }
   end
 
   def location_visits_on_country_visit(country_visit_id)
     sql = <<~SQL
-    SELECT locations.*
-      FROM locations
-     INNER JOIN location_visits
+    SELECT location_visits.id, locations.name
+      FROM location_visits
+     INNER JOIN locations
         ON location_visits.location_id = locations.id
      WHERE country_visit_id = $1;
     SQL
@@ -95,7 +101,15 @@ class DatabasePersistence
   end
 
   def add_location_visit_to_country_visit(country_visit_id, location_name)
-    
+    process_new_location_input(location_name, country_visit_id)
+    location = find_location_by_name(location_name)
+
+    sql = <<~SQL
+    INSERT INTO location_visits(country_visit_id, location_id)
+      VALUES ($1, $2)
+    SQL
+
+    query(sql, country_visit_id, location[:id])
   end
 
   def query(sql, *params)
@@ -107,7 +121,7 @@ class DatabasePersistence
 
   def process_new_country_input(name)
     country = find_country_by_name(name)
-    insert_country(name) unless country
+    create_country_entry(name) unless country
   end
 
   def find_country_by_name(name)
@@ -115,11 +129,31 @@ class DatabasePersistence
     result = query(sql, name)
     tuple = result.first
 
-    { id: tuple["id"].to_i, name: tuple["name"] } if tuple
+    { id: tuple["id"].to_i } if tuple
   end
 
-  def insert_country(name)
+  def create_country_entry(name)
     sql = "INSERT INTO countries(name) VALUES ($1)"
     query(sql, name)
+  end
+
+  def process_new_location_input(name, country_visit_id)
+    country_id = find_country_visit(country_visit_id)[:country_id]
+
+    location = find_location_by_name(name)
+    create_location_entry(name, country_id) unless location
+  end
+
+  def find_location_by_name(name)
+    sql = "SELECT * FROM locations WHERE name = $1"
+    result = query(sql, name)
+    tuple = result.first
+
+    { id: tuple["id"].to_i } if tuple
+  end
+
+  def create_location_entry(name, country_id)
+    sql = "INSERT INTO locations(name, country_id) VALUES ($1, $2)"
+    query(sql, name, country_id)
   end
 end

@@ -144,24 +144,22 @@ get "/journeys/:journey_id/countries/:country_id/add_location" do
   @journey = @storage.find_journey(params[:journey_id])
   @country_visit = @storage.find_country_visit(params[:country_id])
 
-  binding.pry
-
   erb :add_location
 end
 
 # Add a location for a country
 post "/journeys/:journey_id/countries/:country_id/add_location" do
   @location_name = params[:location_name]
+  country_visit_id = params[:country_id]
 
   error = error_for_location_name(@location_name)
   if error
     status 422
     @storage.set_error_message(error)
     @journey = @storage.find_journey(params[:journey_id])
-    @country_visit = @storage.find_country_visit(params[:country_id])
+    @country_visit = @storage.find_country_visit(country_visit_id)
     erb :add_location
   else
-    country_visit_id = params[:country_id]
     @storage.add_location_visit_to_country_visit(country_visit_id, @location_name)
     redirect parent_route
   end
