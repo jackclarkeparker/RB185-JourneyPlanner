@@ -131,26 +131,26 @@ post "/journeys/:journey_id/add_country" do
 end
 
 # View page for a country in a journey
-get "/journeys/:journey_id/countries/:country_id" do # Change country_id to c_visit_id?
+get "/journeys/:journey_id/countries/:c_visit_id" do # Change country_id to c_visit_id?
   @journey = @storage.find_journey(params[:journey_id])
-  @country_visit = @storage.find_country_visit(params[:country_id])
+  @country_visit = @storage.find_country_visit(params[:c_visit_id])
   @location_visits = @storage.location_visits_on_country_visit(@country_visit[:id])
 
   erb :country
 end
 
 # View page for adding a location to a journey
-get "/journeys/:journey_id/countries/:country_id/add_location" do
+get "/journeys/:journey_id/countries/:c_visit_id/add_location" do
   @journey = @storage.find_journey(params[:journey_id])
-  @country_visit = @storage.find_country_visit(params[:country_id])
+  @country_visit = @storage.find_country_visit(params[:c_visit_id])
 
   erb :add_location
 end
 
 # Add a location for a country
-post "/journeys/:journey_id/countries/:country_id/add_location" do
+post "/journeys/:journey_id/countries/:c_visit_id/add_location" do
   @location_name = params[:location_name]
-  country_visit_id = params[:country_id]
+  country_visit_id = params[:c_visit_id]
 
   error = error_for_location_name(@location_name)
   if error
