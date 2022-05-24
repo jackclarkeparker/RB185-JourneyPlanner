@@ -12,7 +12,13 @@ class DatabasePersistence
   end
 
   def initialize
-    @db = PG.connect(dbname: 'journey_planner')
+    @db = if Sinatra::Base.production?
+            PG.connect(ENV['DATABASE_URL'])
+          elsif Sinatra::Base.test?
+            PG.connect(dbname: 'test_db_journey_planner')
+          else
+            PG.connect(dbname: 'journey_planner')
+          end
     @message = {}
   end
 

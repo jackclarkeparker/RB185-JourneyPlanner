@@ -3,7 +3,7 @@ require "tilt/erubis"
 
 require "pry"
 
-require_relative 'database_persistence'
+require_relative "database_persistence"
 
 configure do
   set :erb, :escape_html => true
@@ -131,7 +131,7 @@ post "/journeys/:journey_id/add_country" do
 end
 
 # View page for a country in a journey
-get "/journeys/:journey_id/countries/:c_visit_id" do # Change country_id to c_visit_id?
+get "/journeys/:journey_id/countries/:c_visit_id" do
   @journey = @storage.find_journey(params[:journey_id])
   @country_visit = @storage.find_country_visit(params[:c_visit_id])
   @location_visits = @storage.location_visits_on_country_visit(@country_visit[:id])
